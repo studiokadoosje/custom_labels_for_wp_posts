@@ -2,8 +2,6 @@
 
 Contributors: Narendra Sishodiya
 
-Donate link: http://jeremyjaymes.com/donate
-
 Tags: admin column, labels, pages, pages screen
 
 Requires at least: 3.7
@@ -39,7 +37,7 @@ Custom Labels for WordPress Posts allows you to add a more descriptive label to 
 
 
 If you have suggestions or bugfixes for the plugin, please report them on
-[GitHub Repository](https://github.com/jeremyjaymes/custom-page-labels).
+[GitHub Repository](https://github.com/narendr11/custom_labels_for_wp_posts/).
 
 
 
