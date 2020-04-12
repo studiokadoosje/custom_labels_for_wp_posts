@@ -3,7 +3,7 @@
 
 Contributors: Narendra Sishodiya
 
-Donate link: http://jeremyjaymes.com/donate
+Donate link: 
 
 Tags: admin column, labels, pages, pages screen
 
