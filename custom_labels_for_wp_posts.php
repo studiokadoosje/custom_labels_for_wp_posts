@@ -4,10 +4,10 @@
  * Plugin Uri: https://github.com/narendr11/custom_labels_for_wp_posts
  * Author: Narendra Sishodiya(narenin)
  * Author Uri: https://profiles.wordpress.org/narenin/
- * Version: 1.0.2
+ * Version: 1.0.3
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * Description: Adds custom labels to Posts, Pages, and Projects with a colored column in admin screens.
+ * Description: Adds custom labels to Posts, Pages, and Projects with a colored column in admin screens and Quick Edit support.
  * Tags: Custom Tag for Projects, Custom Tag for Pages, Custom Tag for Posts, Label to Admin Screen, Label
  */
 
@@ -18,9 +18,9 @@ add_action('admin_init', 'plugin_custom_label_meta_box');
 function plugin_custom_label_meta_box() {
     add_meta_box(
         'custom_label_field',
-        'Custom Label',
+        'Label',
         'plugin_custom_label_meta_box_fun',
-        ['post', 'page', 'project'], // Post types
+        ['post', 'page', 'project'],
         'side',
         'high'
     );
@@ -37,23 +37,19 @@ function plugin_custom_label_meta_box_fun($post) {
 // Save Meta Box Data
 add_action('save_post', 'save_meta_box', 10, 3);
 function save_meta_box($post_id, $post, $update) {
-    // Check if this is an autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }
-    // Check user permissions
     if (!current_user_can('edit_post', $post_id)) {
         return;
     }
-    // Verify nonce (optional, for extra security)
+    // Verify nonce (for both full edit and Quick Edit)
     if (!isset($_POST['custom_label_nonce']) || !wp_verify_nonce($_POST['custom_label_nonce'], 'save_custom_label')) {
-        $_POST['custom_label_nonce'] = wp_create_nonce('save_custom_label');
+        return;
     }
-    // Save meta data
     if (isset($_POST['_input_meta_box'])) {
         $label = sanitize_text_field($_POST['_input_meta_box']);
         update_post_meta($post_id, '_input_meta_box', $label);
-        // Debug: Log the saved value
         error_log('Custom Label Saved for Post ID ' . $post_id . ': ' . $label);
     }
 }
@@ -66,20 +62,20 @@ function add_custom_label_nonce() {
 
 // Add Custom Label Column to Posts, Pages, and Projects Admin Screens
 function custom_label_add_id_column($columns) {
-    $columns['custom_label'] = 'Custom Label';
+    $columns['custom_label'] = 'Label';
     return $columns;
 }
 
 // Display Custom Label in the Column
 function custom_label_id_column_content($column, $post_id) {
-
     if ('custom_label' == $column) {
         $label = get_post_meta($post_id, '_input_meta_box', true);
+        error_log('Custom Label Retrieved for Post ID ' . $post_id . ': ' . ($label ?: 'No label found'));
         if ($label) {
             $label_class = 'label-' . sanitize_html_class(strtolower(str_replace(' ', '-', $label)));
-            echo '<span class="' . esc_attr($label_class) . '">' . esc_html($label) . '</span>';
+            echo '<span class="' . esc_attr($label_class) . '" data-label="' . esc_attr($label) . '">' . esc_html($label) . '</span>';
         } else {
-            echo '<span class="label-none">No Label</span>';
+            echo '<span class="label-none" data-label="">No Label</span>';
         }
     }
 }
@@ -92,8 +88,37 @@ function register_custom_label_columns() {
         if (post_type_exists($post_type)) {
             add_filter("manage_{$post_type}_posts_columns", 'custom_label_add_id_column', 5);
             add_action("manage_{$post_type}_posts_custom_column", 'custom_label_id_column_content', 5, 2);
+            // Add Quick Edit support
+            add_action("quick_edit_custom_box", 'custom_label_quick_edit_box', 10, 2);
         }
     }
+}
+
+// Add Custom Label Field to Quick Edit
+function custom_label_quick_edit_box($column_name, $post_type) {
+    if ($column_name !== 'custom_label' || !in_array($post_type, ['post', 'page', 'project'])) {
+        return;
+    }
+    ?>
+    <fieldset class="inline-edit-col-right">
+        <div class="inline-edit-col">
+            <label>
+                <span class="title">Label</span>
+                <input type="text" name="_input_meta_box" class="inline-edit-custom-label" value="" />
+            </label>
+            <?php wp_nonce_field('save_custom_label', 'custom_label_nonce'); ?>
+        </div>
+    </fieldset>
+    <?php
+}
+
+// Enqueue JavaScript for Quick Edit
+add_action('admin_enqueue_scripts', 'custom_label_quick_edit_js');
+function custom_label_quick_edit_js($hook) {
+    if ($hook !== 'edit.php') {
+        return;
+    }
+    wp_enqueue_script('custom-label-quick-edit', plugin_dir_url(__FILE__) . 'quick-edit.js', ['jquery', 'inline-edit-post'], '1.0.3', true);
 }
 
 // Add CSS for Colored Labels
@@ -111,15 +136,19 @@ function custom_label_admin_styles() {
         }
         .label-to-do {
             background-color: #ffcc00; /* Yellow */
+            color: #000;
         }
         .label-needs-review {
             background-color: #ff6666; /* Red */
+            color: #fff;
         }
         .label-in-progress {
             background-color: #3399ff; /* Blue */
+            color: #fff;
         }
         .label-done {
             background-color: #33cc33; /* Green */
+            color: #fff;
         }
         .label-none {
             color: #999;
@@ -129,3 +158,4 @@ function custom_label_admin_styles() {
     </style>
     <?php
 }
+?>
