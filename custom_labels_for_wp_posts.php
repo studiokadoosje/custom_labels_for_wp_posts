@@ -2,9 +2,9 @@
 /**
  * Plugin Name: Custom Labels for WordPress Posts
  * Plugin Uri: https://github.com/narendr11/custom_labels_for_wp_posts
- * Author: Narendra Sishodiya(narenin)
+ * Author: Narendra Sishodiya(narenin), Studio Kadoosje
  * Author Uri: https://profiles.wordpress.org/narenin/
- * Version: 1.0.3
+ * Version: 1.2
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Description: Adds custom labels to Posts, Pages, and Projects with a colored column in admin screens and Quick Edit support.
