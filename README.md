@@ -77,7 +77,7 @@ I have created this to help site authors, admins, and developers easily identify
 
 
 == Changelog ==
-= 0.1.2 =
+= 1.2 =
 - Fixed page support
 - Implemented quick edit action
 
