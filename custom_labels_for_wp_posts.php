@@ -17,7 +17,7 @@ defined('ABSPATH') || die('You are trying to enter restricted file!');
 add_action('admin_init', 'plugin_custom_label_meta_box');
 function plugin_custom_label_meta_box() {
     add_meta_box(
-        'my_custom_field',
+        'custom_label_field',
         'Custom Label',
         'plugin_custom_label_meta_box_fun',
         ['post', 'page', 'project'], // Post types
